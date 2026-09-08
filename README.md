@@ -2,17 +2,21 @@
 
 Site institucional responsivo para uma churrascaria, desenvolvido com Flask, HTML, CSS e JavaScript.
 
-O projeto apresenta a identidade do restaurante Dom do Sabor, sua historia, o cardapio e os canais de contato.
+O projeto apresenta a identidade do restaurante, sua história, o cardápio e os canais de contato.
+
+## Sobre o projeto
+
+Este projeto foi desenvolvido para divulgar a marca Dom do Sabor de forma visual e profissional, com uma experiência responsiva para desktop e mobile. A estrutura utiliza Flask para renderizar as páginas HTML e organiza os arquivos estáticos em pastas separadas para facilitar manutenção e evolução.
 
 ## Funcionalidades
 
-- Pagina principal com hero em slides automaticos.
-- Secao Conheca a casa com carrossel vertical de imagens.
-- Pagina Nossa historia com narrativa visual e fotos do restaurante.
-- Pagina Cardapio com filtros por categoria.
-- Pagina de contato com e-mail, WhatsApp, Instagram e TikTok.
-- Layout responsivo para desktop e celular.
-- Animacoes de entrada e suporte a reducao de movimento.
+- Página inicial com destaque visual e slides automáticos
+- Seção “Conheça a casa” com apresentação visual da estrutura e ambiente
+- Página “Nossa história” com narrativa e imagens do restaurante
+- Página de cardápio com apresentação de pratos e receitas
+- Página de contato com e-mail, WhatsApp, Instagram e TikTok
+- Layout responsivo para desktop e celular
+- Animações de entrada e suporte à redução de movimento
 
 ## Tecnologias
 
@@ -29,24 +33,28 @@ O projeto apresenta a identidade do restaurante Dom do Sabor, sua historia, o ca
 ├── backend.py
 ├── README.md
 ├── static/
-│   ├── css/style.css
-│   ├── js/script.js
+│   ├── css/
+│   │   └── style.css
+│   ├── js/
+│   │   └── script.js
 │   └── images/
-└── templates/
-    ├── paginaPrincipal.html
-    ├── restaurante.html
-    ├── pratosReceitas.html
-    └── contato.html
+├── templates/
+│   ├── paginaPrincipal.html
+│   ├── restaurante.html
+│   ├── pratosReceitas.html
+│   └── contato.html
+└── .venv/   (criado localmente)
 ```
 
 ## Requisitos
 
 - Python 3.10 ou superior
 - pip
+- Navegador moderno
 
-## Instalacao
+## Instalação
 
-No PowerShell, dentro da pasta do projeto:
+No PowerShell, dentro da pasta do projeto, execute:
 
 ```powershell
 python -m venv .venv
@@ -54,22 +62,23 @@ python -m venv .venv
 python -m pip install Flask
 ```
 
-Caso o PowerShell bloqueie a ativacao do ambiente virtual, execute apenas nesta sessao:
+Se o PowerShell bloquear a ativação do ambiente virtual, execute o comando abaixo apenas nesta sessão:
 
 ```powershell
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy RemoteSigned
 ```
 
-Depois, ative novamente o ambiente virtual.
+Depois, ative novamente o ambiente virtual e continue.
 
-## Executar o projeto
+## Executando o projeto
+
+Para iniciar a aplicação:
 
 ```powershell
 python backend.py
 ```
 
-
-Para executar com recarregamento automatico durante o desenvolvimento:
+Para executar em modo de desenvolvimento com recarregamento automático:
 
 ```powershell
 python backend.py --debug
@@ -77,37 +86,42 @@ python backend.py --debug
 
 ## Rotas
 
-| Rota           | Pagina              |
+| Rota           | Página              |
 | -------------- | ------------------- |
-| `/`            | Pagina principal    |
-| `/restaurante` | Nossa historia      |
-| `/receitas`    | Cardapio e receitas |
+| `/`            | Página principal    |
+| `/restaurante` | Nossa história      |
+| `/receitas`    | Cardápio e receitas |
 | `/contato`     | Canais de contato   |
 
-## Testes rapidos
+## Verificações rápidas
 
-Verifique se todas as paginas respondem corretamente:
+Teste se todas as páginas respondem corretamente:
 
 ```powershell
 python -c "from backend import backend; client=backend.test_client(); [print(route, client.get(route).status_code) for route in ['/', '/restaurante', '/receitas', '/contato']]"
 ```
 
-A resposta esperada e `200` para todas as rotas.
+A resposta esperada é `200` para todas as rotas.
 
-Para verificar a sintaxe do JavaScript:
+Para validar a sintaxe do JavaScript:
 
 ```powershell
 node --check static/js/script.js
 ```
 
-## Personalizacao
+## Personalização
 
-- Edite os textos e links nos arquivos dentro de `templates/`.
-- Edite cores, tipografia, espacamentos e responsividade em `static/css/style.css`.
-- Edite os slides, filtros e carrosseis em `static/js/script.js`.
-- Adicione imagens nas pastas dentro de `static/images/` e referencie-as com `url_for('static', filename='...')`.
+- Edite os textos e links nas páginas dentro da pasta `templates/`
+- Ajuste cores, tipografia, espaçamento e responsividade em `static/css/style.css`
+- Modifique slides, filtros e interações em `static/js/script.js`
+- Adicione imagens nas pastas de `static/images/` e referencie-as com `url_for('static', filename='...')`
 
-## Observacoes
+## Observações
 
-- Os dados de contato atuais sao demonstrativos e devem ser substituidos pelos dados reais do restaurante antes da publicacao.
-- O modo `debug` deve ser usado somente durante o desenvolvimento.
+- Os dados de contato atuais são demonstrativos e devem ser substituídos pelos dados reais do restaurante antes da publicação
+- O modo `debug` deve ser usado somente durante o desenvolvimento
+- Para implantação em produção, recomenda-se configurar variáveis de ambiente e ajustar a segurança da aplicação
+
+## Licença
+
+Este projeto é destinado para uso educacional e institucional. Caso seja utilizado em produção, revise os textos, imagens e informações de contato antes de publicar.
