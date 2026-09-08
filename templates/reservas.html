@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <title>Reservas | Dom do Sabor</title>
+</head>
+<body class="reservas-page">
+    <header class="site-header reservas-header">
+        <a class="brand" href="{{ url_for('paginaPrincipal') }}" aria-label="Dom do Sabor, início"><span class="brand-mark">D</span><span><strong>DOM</strong><small>DO SABOR</small></span></a>
+        <nav class="main-nav" aria-label="Navegação da página de reservas">
+            <a href="{{ url_for('paginaPrincipal') }}">Início</a>
+            <a href="{{ url_for('restaurante') }}">Nossa história</a>
+            <a href="{{ url_for('pratosReceitas') }}">Receitas</a>
+            <a href="{{ url_for('contato') }}">Contato</a>
+        </nav>
+        <a class="header-action" href="{{ url_for('paginaPrincipal') }}">Voltar ao início <span aria-hidden="true">↗</span></a>
+    </header>
+
+    <main class="reservas-main">
+        <section class="reservas-intro reveal">
+            <p class="eyebrow">Reserva inteligente</p>
+            <h1>Escolha a sua<br><em>mesa ideal.</em></h1>
+            <p>Veja em tempo real quais mesas estão disponíveis e selecione a melhor opção para o seu momento.</p>
+        </section>
+
+        <section class="reservation-panel reveal" aria-label="Mapa de mesas para reserva">
+            <aside class="reservation-summary">
+                <div class="summary-card">
+                    <p class="summary-label">Status do salão</p>
+                    <h2 id="reservation-status">Disponibilidade em tempo real</h2>
+                </div>
+
+                <div class="summary-stats">
+                    <div class="stat-item is-green">
+                        <span id="mesas-livres">0</span>
+                        <small>Disponíveis</small>
+                    </div>
+                    <div class="stat-item is-red">
+                        <span id="mesas-ocupadas">0</span>
+                        <small>Reservadas</small>
+                    </div>
+                </div>
+
+                <div class="legend">
+                    <span><i class="legend-dot is-green"></i> Disponível</span>
+                    <span><i class="legend-dot is-red"></i> Reservada</span>
+                </div>
+            </aside>
+
+            <div class="salon-floor-plan" aria-live="polite">
+                <div class="salon-architecture">
+                    <span class="wall wall-left"></span>
+                    <span class="wall wall-right"></span>
+                    <span class="wall wall-top"></span>
+                    <span class="bar-counter"></span>
+                    <span class="kitchen-zone">Cozinha</span>
+                    <span class="entry-zone">Entrada</span>
+                </div>
+
+                <div class="mesas-grid" id="mesas-grid">
+                    {% for mesa in mesas %}
+                    <button
+                        type="button"
+                        class="table-btn {% if mesa.disponivel %}is-available{% else %}is-occupied{% endif %}"
+                        data-id="{{ mesa.id }}"
+                        data-number="{{ mesa.numero }}"
+                        data-disponivel="{{ 'true' if mesa.disponivel else 'false' }}"
+                        aria-label="Mesa {{ mesa.numero }} {% if mesa.disponivel %}disponível{% else %}reservada{% endif %}"
+                        aria-pressed="{{ 'false' if mesa.disponivel else 'true' }}"
+                        {% if not mesa.disponivel %}disabled{% endif %}
+                    >
+                        <span class="table-indicator">{{ 'Disponível' if mesa.disponivel else 'Reservada' }}</span>
+                        <strong>{{ mesa.numero }}</strong>
+                    </button>
+                    {% endfor %}
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div class="reservation-modal" id="reservation-modal" hidden>
+        <div class="reservation-modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+            <button type="button" class="close-modal" aria-label="Fechar modal" id="close-modal">×</button>
+
+            <div class="reservation-step reservation-step-type" id="step-type">
+                <p class="eyebrow">Escolha sua experiência</p>
+                <h2 id="modal-title">Qual será a sua mesa?</h2>
+                <div class="experience-options">
+                    <button type="button" class="experience-option" data-experience="rodizio">
+                        <span>Rodízio</span>
+                        <small>Experiência completa com diversas opções</small>
+                    </button>
+                    <button type="button" class="experience-option" data-experience="alacarte">
+                        <span>À la carte</span>
+                        <small>Seleção exclusiva por prato</small>
+                    </button>
+                </div>
+            </div>
+
+            <div class="reservation-step reservation-step-form" id="step-form" hidden>
+                <p class="eyebrow">Dados da reserva</p>
+                <h2>Reservar mesa <span id="selected-table-number">0</span></h2>
+                <form id="reservation-form">
+                    <input type="hidden" name="mesa_id" id="mesa_id">
+                    <input type="hidden" name="tipo" id="tipo">
+
+                    <div class="field-grid">
+                        <label>
+                            Nome completo
+                            <input type="text" name="nome" placeholder="Seu nome" required>
+                        </label>
+                        <label>
+                            Horário
+                            <input type="time" name="horario" required>
+                        </label>
+                        <label>
+                            Quantas pessoas
+                            <input type="number" name="quantas_pessoas" min="1" max="20" placeholder="2" required>
+                        </label>
+                        <label>
+                            Telefone
+                            <input type="tel" name="telefone" placeholder="(11) 99999-9999" required>
+                        </label>
+                        <label class="field-full">
+                            E-mail
+                            <input type="email" name="email" placeholder="seuemail@email.com" required>
+                        </label>
+                    </div>
+
+                    <button type="submit" class="button button-light modal-submit">Ir para pagamento</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

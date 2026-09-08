@@ -104,5 +104,240 @@ document.addEventListener("DOMContentLoaded", () => {
     }));
     restartRestaurantTimer();
   }
+
+  const reservationButtons = [...document.querySelectorAll(".table-btn")];
+  if (reservationButtons.length) {
+    const reservationStatus = document.getElementById("reservation-status");
+    const mesasLivres = document.getElementById("mesas-livres");
+    const mesasOcupadas = document.getElementById("mesas-ocupadas");
+    const reservationModal = document.getElementById("reservation-modal");
+    const closeModalButton = document.getElementById("close-modal");
+    const stepType = document.getElementById("step-type");
+    const stepForm = document.getElementById("step-form");
+    const selectedTableNumber = document.getElementById("selected-table-number");
+    const mesaIdInput = document.getElementById("mesa_id");
+    const tipoInput = document.getElementById("tipo");
+    const reservationForm = document.getElementById("reservation-form");
+
+    const updateReservationSummary = () => {
+      const total = reservationButtons.length;
+      const livres = reservationButtons.filter((button) => button.dataset.disponivel === "true").length;
+      const ocupadas = total - livres;
+
+      if (mesasLivres) mesasLivres.textContent = String(livres);
+      if (mesasOcupadas) mesasOcupadas.textContent = String(ocupadas);
+
+      if (reservationStatus) {
+        if (livres === 0) {
+          reservationStatus.textContent = "Salão lotado";
+        } else if (ocupadas === 0) {
+          reservationStatus.textContent = "Todas as mesas disponíveis";
+        } else {
+          reservationStatus.textContent = "Algumas mesas ainda estão livres";
+        }
+      }
+    };
+
+    const setMesaState = (button, disponivel) => {
+      button.dataset.disponivel = String(disponivel);
+      button.classList.toggle("is-available", disponivel);
+      button.classList.toggle("is-occupied", !disponivel);
+      button.setAttribute("aria-label", `Mesa ${button.dataset.number} ${disponivel ? "disponível" : "reservada"}`);
+      button.setAttribute("aria-pressed", String(!disponivel));
+
+      const indicator = button.querySelector(".table-indicator");
+      if (indicator) {
+        indicator.textContent = disponivel ? "Disponível" : "Reservada";
+      }
+
+      if (!disponivel) {
+        button.disabled = true;
+      }
+
+      updateReservationSummary();
+    };
+
+    const openReservationModal = (button) => {
+      if (!reservationModal || !button) return;
+      const mesaId = button.dataset.id;
+      const mesaNumber = button.dataset.number;
+      if (mesaIdInput) mesaIdInput.value = mesaId;
+      if (selectedTableNumber) selectedTableNumber.textContent = mesaNumber;
+      if (tipoInput) tipoInput.value = "";
+      reservationModal.hidden = false;
+      stepType.hidden = false;
+      stepForm.hidden = true;
+      reservationForm.reset();
+    };
+
+    const closeReservationModal = () => {
+      if (reservationModal) reservationModal.hidden = true;
+      stepType.hidden = false;
+      stepForm.hidden = true;
+    };
+
+    reservationButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        if (button.dataset.disponivel === "false") return;
+        openReservationModal(button);
+      });
+    });
+
+    closeModalButton?.addEventListener("click", closeReservationModal);
+    reservationModal?.addEventListener("click", (event) => {
+      if (event.target === reservationModal) closeReservationModal();
+    });
+
+    document.querySelectorAll(".experience-option").forEach((option) => {
+      option.addEventListener("click", () => {
+        const experience = option.dataset.experience;
+        if (tipoInput) tipoInput.value = experience;
+        stepType.hidden = true;
+        stepForm.hidden = false;
+      });
+    });
+
+    reservationForm?.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const formData = new FormData(reservationForm);
+      const mesaId = formData.get("mesa_id");
+
+      try {
+        const response = await fetch(`/reservas/${mesaId}/confirmar`, {
+          method: "POST",
+          body: formData,
+        });
+
+        const data = await response.json();
+        if (!response.ok || !data.success) {
+          throw new Error(data.message || "Não foi possível confirmar a reserva.");
+        }
+
+        const reservaButton = document.querySelector(`.table-btn[data-id="${mesaId}"]`);
+        if (reservaButton) {
+          setMesaState(reservaButton, false);
+        }
+
+        closeReservationModal();
+        window.location.href = data.redirect;
+      } catch (error) {
+        alert(error.message || "Erro ao confirmar reserva.");
+      }
+    });
+
+    updateReservationSummary();
+  }
+
+  const adminMesaButtons = [...document.querySelectorAll(".admin-mesa-btn")];
+  if (adminMesaButtons.length) {
+    adminMesaButtons.forEach((button) => {
+      button.addEventListener("click", async () => {
+        const mesaId = button.dataset.mesaId;
+
+        try {
+          const response = await fetch(`/admin/mesa/${mesaId}/toggle`, { method: "POST" });
+          const data = await response.json();
+
+          if (!response.ok || !data.success) {
+            throw new Error(data.message || "Não foi possível alterar a mesa.");
+          }
+
+          const { disponivel } = data.mesa;
+          button.classList.toggle("is-available", disponivel);
+          button.classList.toggle("is-occupied", !disponivel);
+          button.querySelector("strong").textContent = disponivel ? "Disponível" : "Reservada";
+          button.querySelector("span").textContent = `Mesa ${data.mesa.numero}`;
+        } catch (error) {
+          alert(error.message || "Erro ao atualizar a mesa.");
+        }
+      });
+    });
+  }
+
+  const adminCardapioForm = document.getElementById("admin-cardapio-form");
+  if (adminCardapioForm) {
+    const itemsList = document.querySelector(".admin-itens");
+
+    const renderAdminItem = (item) => {
+      const article = document.createElement("article");
+      article.className = "admin-item";
+      article.dataset.itemId = String(item.id);
+      article.innerHTML = `
+        <div>
+          <span class="item-category">${item.categoria}</span>
+          <h3>${item.titulo}</h3>
+          <p>${item.descricao}</p>
+        </div>
+        <button type="button" class="delete-item" data-delete-id="${item.id}">Excluir</button>
+      `;
+
+      article.querySelector(".delete-item").addEventListener("click", async () => {
+        try {
+          const response = await fetch(`/admin/cardapio/${item.id}/delete`, { method: "POST" });
+          const data = await response.json();
+
+          if (!response.ok || !data.success) {
+            throw new Error(data.message || "Não foi possível remover o item.");
+          }
+
+          article.remove();
+        } catch (error) {
+          alert(error.message || "Erro ao remover item do cardápio.");
+        }
+      });
+
+      itemsList.appendChild(article);
+    };
+
+    adminCardapioForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const formData = new FormData(adminCardapioForm);
+
+      try {
+        const response = await fetch("/admin/cardapio", {
+          method: "POST",
+          body: formData,
+        });
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+          throw new Error(data.message || "Não foi possível salvar o item.");
+        }
+
+        const item = {
+          id: data.item.id,
+          titulo: data.item.titulo,
+          categoria: data.item.categoria,
+          descricao: formData.get("descricao").toString(),
+        };
+
+        renderAdminItem(item);
+        adminCardapioForm.reset();
+      } catch (error) {
+        alert(error.message || "Erro ao salvar item do cardápio.");
+      }
+    });
+
+    document.querySelectorAll(".delete-item").forEach((button) => {
+      button.addEventListener("click", async () => {
+        const itemId = button.dataset.deleteId;
+        const article = button.closest(".admin-item");
+
+        try {
+          const response = await fetch(`/admin/cardapio/${itemId}/delete`, { method: "POST" });
+          const data = await response.json();
+
+          if (!response.ok || !data.success) {
+            throw new Error(data.message || "Não foi possível remover o item.");
+          }
+
+          article.remove();
+        } catch (error) {
+          alert(error.message || "Erro ao remover item do cardápio.");
+        }
+      });
+    });
+  }
 });
 

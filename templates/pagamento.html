@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <title>Pagamento | Dom do Sabor</title>
+</head>
+<body class="payment-page">
+    <header class="site-header reservas-header">
+        <a class="brand" href="{{ url_for('paginaPrincipal') }}" aria-label="Dom do Sabor, início"><span class="brand-mark">D</span><span><strong>DOM</strong><small>DO SABOR</small></span></a>
+        <nav class="main-nav" aria-label="Navegação da página de pagamento">
+            <a href="{{ url_for('reservas') }}">Reservas</a>
+            <a href="{{ url_for('paginaPrincipal') }}">Início</a>
+            <a href="{{ url_for('contato') }}">Contato</a>
+        </nav>
+        <a class="header-action" href="{{ url_for('reservas') }}">Voltar às mesas <span aria-hidden="true">↗</span></a>
+    </header>
+
+    <main class="payment-main">
+        <section class="payment-card reveal">
+            <p class="eyebrow">Pagamento</p>
+            <h1>Finalize a sua<br><em>reserva.</em></h1>
+
+            <div class="payment-summary">
+                <div>
+                    <span>Cliente</span>
+                    <strong>{{ reserva.nome }}</strong>
+                </div>
+                <div>
+                    <span>Mesa</span>
+                    <strong>{{ reserva.mesa.numero }}</strong>
+                </div>
+                <div>
+                    <span>Experiência</span>
+                    <strong>{% if reserva.tipo == 'rodizio' %}Rodízio{% else %}À la carte{% endif %}</strong>
+                </div>
+                <div>
+                    <span>Horário</span>
+                    <strong>{{ reserva.horario }}</strong>
+                </div>
+                <div>
+                    <span>Pessoas</span>
+                    <strong>{{ reserva.pessoas }}</strong>
+                </div>
+            </div>
+
+            <form class="payment-form">
+                <label>
+                    Nome do titular
+                    <input type="text" placeholder="Seu nome completo">
+                </label>
+                <label>
+                    Número do cartão
+                    <input type="text" placeholder="1234 5678 9012 3456">
+                </label>
+                <div class="payment-inline">
+                    <label>
+                        Validade
+                        <input type="text" placeholder="MM/AA">
+                    </label>
+                    <label>
+                        CVV
+                        <input type="text" placeholder="123">
+                    </label>
+                </div>
+                <button type="button" class="button button-light">Confirmar pagamento</button>
+            </form>
+        </section>
+    </main>
+</body>
+</html>

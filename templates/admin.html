@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <title>Administração | Dom do Sabor</title>
+</head>
+<body class="admin-page">
+    <header class="site-header reservas-header">
+        <a class="brand" href="{{ url_for('paginaPrincipal') }}" aria-label="Dom do Sabor, início"><span class="brand-mark">D</span><span><strong>DOM</strong><small>DO SABOR</small></span></a>
+        <nav class="main-nav" aria-label="Navegação administrativa">
+            <a href="{{ url_for('paginaPrincipal') }}">Início</a>
+            <a href="{{ url_for('reservas') }}">Reservas</a>
+            <a href="{{ url_for('contato') }}">Contato</a>
+        </nav>
+        <a class="header-action" href="{{ url_for('paginaPrincipal') }}">Voltar ao site <span aria-hidden="true">↗</span></a>
+    </header>
+
+    <main class="admin-main">
+        <section class="admin-intro reveal">
+            <p class="eyebrow">Painel de gestão</p>
+            <h1>Administração<br><em>da casa.</em></h1>
+        </section>
+
+        <section class="admin-grid">
+            <div class="admin-panel">
+                <h2>Mesas</h2>
+                <div class="admin-mesas">
+                    {% for mesa in mesas %}
+                    <button type="button" class="admin-mesa-btn {% if mesa.disponivel %}is-available{% else %}is-occupied{% endif %}" data-mesa-id="{{ mesa.id }}">
+                        <span>Mesa {{ mesa.numero }}</span>
+                        <strong>{{ 'Disponível' if mesa.disponivel else 'Reservada' }}</strong>
+                    </button>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="admin-panel">
+                <h2>Novo item do cardápio</h2>
+                <form id="admin-cardapio-form" class="admin-form">
+                    <label>
+                        Título
+                        <input type="text" name="titulo" placeholder="Ex: Picanha na brasa" required>
+                    </label>
+                    <label>
+                        Descrição
+                        <textarea name="descricao" rows="4" placeholder="Descreva o prato ou experiência" required></textarea>
+                    </label>
+                    <label>
+                        Categoria
+                        <select name="categoria">
+                            <option value="pratos">Pratos</option>
+                            <option value="rodizios">Rodízios</option>
+                            <option value="bebidas">Bebidas</option>
+                            <option value="sobremesas">Sobremesas</option>
+                        </select>
+                    </label>
+                    <label>
+                        Imagem
+                        <input type="text" name="imagem" placeholder="images/nome-da-imagem.jpg">
+                    </label>
+                    <label>
+                        Ordem
+                        <input type="number" name="ordem" value="1" min="1">
+                    </label>
+                    <button type="submit" class="button button-light">Salvar item</button>
+                </form>
+            </div>
+        </section>
+
+        <section class="admin-panel admin-itens-panel">
+            <h2>Itens cadastrados</h2>
+            <div class="admin-itens">
+                {% for item in itens %}
+                <article class="admin-item" data-item-id="{{ item.id }}">
+                    <div>
+                        <span class="item-category">{{ item.categoria }}</span>
+                        <h3>{{ item.titulo }}</h3>
+                        <p>{{ item.descricao }}</p>
+                    </div>
+                    <button type="button" class="delete-item" data-delete-id="{{ item.id }}">Excluir</button>
+                </article>
+                {% endfor %}
+            </div>
+        </section>
+    </main>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
