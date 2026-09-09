@@ -191,7 +191,10 @@ def admin():
     mesas = Mesa.query.order_by(Mesa.numero).all()
     itens = ItemCardapio.query.order_by(ItemCardapio.ordem).all()
     reservas_ativas = Reserva.query.filter_by(status="ativa").order_by(Reserva.data_reserva, Reserva.horario).all()
-    mesa_status = {mesa.id: not mesa_is_available(mesa.id, date.today()) for mesa in mesas}
+    mesa_status = {
+        mesa.id: Reserva.query.filter_by(mesa_id=mesa.id, status="ativa").first() is not None
+        for mesa in mesas
+    }
     return render_template('admin.html', mesas=mesas, itens=itens, reservas=reservas_ativas, hoje=date.today(), mesa_status=mesa_status)
 
 
@@ -203,7 +206,12 @@ def admin_mesas_disponiveis():
     return jsonify({
         "success": True,
         "mesas": [
-            {"id": mesa.id, "numero": mesa.numero, "disponivel": mesa_is_available(mesa.id, reservation_date)}
+            {
+                "id": mesa.id,
+                "numero": mesa.numero,
+                "disponivel": mesa_is_available(mesa.id, reservation_date),
+                "tem_agendamento": Reserva.query.filter_by(mesa_id=mesa.id, status="ativa").first() is not None,
+            }
             for mesa in mesas
         ],
     })
@@ -216,18 +224,17 @@ def admin_reservas_da_mesa(mesa_id):
     if not mesa:
         return jsonify({"success": False, "message": "Mesa não encontrada."}), 404
 
-    reservation_date = get_reservation_date()
     reservas = Reserva.query.filter_by(
-        mesa_id=mesa.id, data_reserva=reservation_date, status="ativa"
-    ).order_by(Reserva.horario).all()
+        mesa_id=mesa.id, status="ativa"
+    ).order_by(Reserva.data_reserva, Reserva.horario).all()
     return jsonify({
         "success": True,
         "mesa": mesa.numero,
-        "data": reservation_date.strftime("%d/%m/%Y"),
         "reservas": [
             {
                 "id": reserva.id,
                 "nome": reserva.nome,
+                "data": reserva.data_reserva.strftime("%d/%m/%Y") if reserva.data_reserva else "Data antiga",
                 "horario": reserva.horario,
                 "telefone": reserva.telefone,
                 "email": reserva.email,

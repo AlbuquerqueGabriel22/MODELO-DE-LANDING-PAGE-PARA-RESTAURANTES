@@ -233,6 +233,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const adminMesaButtons = [...document.querySelectorAll(".admin-mesa-btn")];
   if (adminMesaButtons.length) {
     const adminTableDate = document.getElementById("admin-table-date");
+    const adminTableModal = document.getElementById("admin-table-modal");
+    const adminTableModalClose = document.getElementById("admin-table-modal-close");
     const adminTableDetails = document.getElementById("admin-table-details");
 
     const showTableDetails = (data) => {
@@ -247,7 +249,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <span>${reserva.telefone} · ${reserva.email}</span>
           </div>`).join("")}`;
       }
-      adminTableDetails.hidden = false;
+      if (adminTableModal) adminTableModal.hidden = false;
     };
 
     const refreshAdminTableColors = async () => {
@@ -257,8 +259,8 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!response.ok || !data.success) throw new Error(data.message || "Não foi possível atualizar as mesas.");
       data.mesas.forEach((mesa) => {
         const button = document.querySelector(`.admin-mesa-btn[data-mesa-id="${mesa.id}"]`);
-        button?.classList.toggle("is-available", mesa.disponivel);
-        button?.classList.toggle("is-occupied", !mesa.disponivel);
+        button?.classList.toggle("is-available", !mesa.tem_agendamento);
+        button?.classList.toggle("is-occupied", mesa.tem_agendamento);
       });
     };
 
@@ -278,10 +280,17 @@ document.addEventListener("DOMContentLoaded", () => {
     adminTableDate?.addEventListener("change", async () => {
       try {
         await refreshAdminTableColors();
-        if (adminTableDetails) adminTableDetails.hidden = true;
+        if (adminTableModal) adminTableModal.hidden = true;
       } catch (error) {
         alert(error.message || "Erro ao atualizar as mesas.");
       }
+    });
+
+    adminTableModalClose?.addEventListener("click", () => {
+      if (adminTableModal) adminTableModal.hidden = true;
+    });
+    adminTableModal?.addEventListener("click", (event) => {
+      if (event.target === adminTableModal) adminTableModal.hidden = true;
     });
   }
 

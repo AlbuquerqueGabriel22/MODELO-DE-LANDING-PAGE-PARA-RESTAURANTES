@@ -67,10 +67,16 @@
                     {% for mesa in mesas %}
                     <button type="button" class="admin-mesa-btn {% if mesa_status[mesa.id] %}is-occupied{% else %}is-available{% endif %}" data-mesa-id="{{ mesa.id }}" data-mesa-number="{{ mesa.numero }}" aria-label="Ver agendamento da mesa {{ mesa.numero }}">
                         <span>Mesa {{ mesa.numero }}</span>
+                        <strong class="table-status">{% if mesa_status[mesa.id] %}AGENDADO{% endif %}</strong>
                     </button>
                     {% endfor %}
                 </div>
-                <div class="admin-table-details" id="admin-table-details" hidden></div>
+                <div class="admin-table-modal" id="admin-table-modal" hidden>
+                    <div class="admin-table-modal-card" role="dialog" aria-modal="true" aria-labelledby="admin-table-modal-title">
+                        <button type="button" class="admin-table-modal-close" id="admin-table-modal-close" aria-label="Fechar detalhes">&times;</button>
+                        <div class="admin-table-details" id="admin-table-details"></div>
+                    </div>
+                </div>
             </div>
 
             <div class="admin-panel">

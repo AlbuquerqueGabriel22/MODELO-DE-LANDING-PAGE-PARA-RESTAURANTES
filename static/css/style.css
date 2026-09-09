@@ -2276,6 +2276,40 @@ h2 em {
   padding: 10px 12px;
 }
 
+.admin-table-modal {
+  background: rgba(0, 0, 0, 0.42);
+  inset: 0;
+  padding: 24px;
+  position: fixed;
+  z-index: 20;
+}
+
+.admin-table-modal-card {
+  background: #e1e1e1;
+  border: 1px solid #999999;
+  border-radius: 16px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.28);
+  left: 50%;
+  max-width: 520px;
+  padding: 24px;
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: calc(100% - 48px);
+}
+
+.admin-table-modal-close {
+  background: transparent;
+  border: 0;
+  color: #111111;
+  cursor: pointer;
+  font-size: 28px;
+  line-height: 1;
+  position: absolute;
+  right: 16px;
+  top: 12px;
+}
+
 .admin-table-details {
   background: #ffffff;
   border: 1px solid #aaaaaa;
