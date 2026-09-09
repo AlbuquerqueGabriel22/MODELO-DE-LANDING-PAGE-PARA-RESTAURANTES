@@ -22,7 +22,11 @@
         <section class="reservas-intro reveal">
             <p class="eyebrow">Reserva inteligente</p>
             <h1>Escolha a sua<br><em>mesa ideal.</em></h1>
-            <p>Veja em tempo real quais mesas estão disponíveis e selecione a melhor opção para o seu momento.</p>
+            <p>Escolha o dia da sua visita para ver as mesas disponíveis e selecionar a melhor opção.</p>
+            <form class="reservation-date-picker" method="get">
+                <label for="reservation-date">Data da visita</label>
+                <input id="reservation-date" type="date" name="data" value="{{ reservation_date.isoformat() }}" min="{{ hoje.isoformat() if hoje else reservation_date.isoformat() }}" onchange="this.form.submit()" required>
+            </form>
         </section>
 
         <section class="reservation-panel reveal" aria-label="Mapa de mesas para reserva">
@@ -63,15 +67,15 @@
                     {% for mesa in mesas %}
                     <button
                         type="button"
-                        class="table-btn {% if mesa.disponivel %}is-available{% else %}is-occupied{% endif %}"
+                        class="table-btn {% if availability[mesa.id] %}is-available{% else %}is-occupied{% endif %}"
                         data-id="{{ mesa.id }}"
                         data-number="{{ mesa.numero }}"
-                        data-disponivel="{{ 'true' if mesa.disponivel else 'false' }}"
-                        aria-label="Mesa {{ mesa.numero }} {% if mesa.disponivel %}disponível{% else %}reservada{% endif %}"
-                        aria-pressed="{{ 'false' if mesa.disponivel else 'true' }}"
-                        {% if not mesa.disponivel %}disabled{% endif %}
+                        data-disponivel="{{ 'true' if availability[mesa.id] else 'false' }}"
+                        aria-label="Mesa {{ mesa.numero }} {% if availability[mesa.id] %}disponível{% else %}reservada{% endif %}"
+                        aria-pressed="{{ 'false' if availability[mesa.id] else 'true' }}"
+                        {% if not availability[mesa.id] %}disabled{% endif %}
                     >
-                        <span class="table-indicator">{{ 'Disponível' if mesa.disponivel else 'Reservada' }}</span>
+                        <span class="table-indicator">{{ 'Disponível' if availability[mesa.id] else 'Reservada' }}</span>
                         <strong>{{ mesa.numero }}</strong>
                     </button>
                     {% endfor %}
@@ -105,11 +109,16 @@
                 <form id="reservation-form">
                     <input type="hidden" name="mesa_id" id="mesa_id">
                     <input type="hidden" name="tipo" id="tipo">
+                    <input type="hidden" name="data_reserva" id="data_reserva" value="{{ reservation_date.isoformat() }}">
 
                     <div class="field-grid">
                         <label>
                             Nome completo
                             <input type="text" name="nome" placeholder="Seu nome" required>
+                        </label>
+                        <label>
+                            Data
+                            <input type="date" value="{{ reservation_date.isoformat() }}" min="{{ reservation_date.isoformat() }}" disabled>
                         </label>
                         <label>
                             Horário

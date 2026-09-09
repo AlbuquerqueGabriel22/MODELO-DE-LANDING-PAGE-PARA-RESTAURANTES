@@ -1724,6 +1724,30 @@ h2 em {
   padding: 14px 16px;
 }
 
+.reservation-date-picker {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.reservation-date-picker label {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.reservation-date-picker input {
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(41, 40, 38, 0.14);
+  border-radius: 10px;
+  color: var(--ink);
+  font: 500 15px "DM Sans", sans-serif;
+  padding: 10px 12px;
+}
+
 .field-full {
   grid-column: 1 / -1;
 }
@@ -1833,8 +1857,102 @@ h2 em {
 }
 
 .admin-intro {
+  align-items: end;
   color: var(--cream);
+  display: flex;
+  justify-content: space-between;
   margin-bottom: 40px;
+}
+
+.admin-logout,
+.admin-back-link {
+  color: var(--cream);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.admin-reservas-panel {
+  margin-bottom: 28px;
+}
+
+.admin-section-heading {
+  align-items: end;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 22px;
+}
+
+.admin-section-heading h2 {
+  margin-bottom: 0;
+}
+
+.admin-section-heading > span {
+  color: rgba(245, 240, 232, 0.72);
+  font-size: 13px;
+}
+
+.admin-reservas-list {
+  display: grid;
+  gap: 12px;
+}
+
+.admin-reserva {
+  align-items: center;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 14px;
+  display: flex;
+  gap: 18px;
+  justify-content: space-between;
+  padding: 16px;
+}
+
+.admin-reserva h3 {
+  margin: 5px 0;
+}
+
+.admin-reserva p,
+.admin-empty {
+  color: rgba(245, 240, 232, 0.72);
+  margin: 0;
+}
+
+.admin-login-main {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  padding: 24px;
+}
+
+.admin-login-card {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 24px;
+  box-shadow: 0 22px 60px rgba(0, 0, 0, 0.18);
+  color: var(--cream);
+  max-width: 460px;
+  padding: 34px;
+  width: 100%;
+}
+
+.admin-login-card h1 {
+  font: 500 clamp(42px, 5vw, 66px) / 0.95 "Playfair Display", serif;
+  margin: 0 0 28px;
+}
+
+.admin-login-card h1 em {
+  color: #d8b298;
+  font-style: italic;
+}
+
+.admin-login-error {
+  color: #ffb1aa;
+}
+
+.admin-back-link {
+  display: inline-block;
+  margin-top: 22px;
 }
 
 .admin-intro h1 {

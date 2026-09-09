@@ -72,6 +72,16 @@ Depois, ative novamente o ambiente virtual e continue.
 
 ## Executando o projeto
 
+Antes de publicar, configure as credenciais do painel administrativo no PowerShell:
+
+```powershell
+$env:SECRET_KEY = "uma-chave-secreta-longa-e-aleatoria"
+$env:ADMIN_USERNAME = "admin"
+$env:ADMIN_PASSWORD = "uma-senha-forte"
+```
+
+O painel fica separado do site público em `/admin/login`. Depois do login, o administrador pode consultar os dados dos clientes, adicionar agendamentos e cancelar reservas.
+
 Para iniciar a aplicação:
 
 ```powershell
@@ -86,12 +96,15 @@ python backend.py --debug
 
 ## Rotas
 
-| Rota           | Página              |
-| -------------- | ------------------- |
-| `/`            | Página principal    |
-| `/restaurante` | Nossa história      |
-| `/receitas`    | Cardápio e receitas |
-| `/contato`     | Canais de contato   |
+| Rota           | Página                 |
+| -------------- | ---------------------- |
+| `/`            | Página principal       |
+| `/restaurante` | Nossa história         |
+| `/receitas`    | Cardápio e receitas    |
+| `/contato`     | Canais de contato      |
+| `/reservas`    | Escolha de data e mesa |
+| `/admin/login` | Login administrativo   |
+| `/admin`       | Gestão privada         |
 
 ## Verificações rápidas
 

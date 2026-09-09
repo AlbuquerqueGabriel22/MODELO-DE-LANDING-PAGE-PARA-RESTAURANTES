@@ -36,6 +36,10 @@
                     <strong>{% if reserva.tipo == 'rodizio' %}Rodízio{% else %}À la carte{% endif %}</strong>
                 </div>
                 <div>
+                    <span>Data</span>
+                    <strong>{{ reserva.data_reserva.strftime('%d/%m/%Y') if reserva.data_reserva else 'A confirmar' }}</strong>
+                </div>
+                <div>
                     <span>Horário</span>
                     <strong>{{ reserva.horario }}</strong>
                 </div>

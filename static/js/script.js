@@ -117,6 +117,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const selectedTableNumber = document.getElementById("selected-table-number");
     const mesaIdInput = document.getElementById("mesa_id");
     const tipoInput = document.getElementById("tipo");
+    const reservationDateInput = document.getElementById("data_reserva");
     const reservationForm = document.getElementById("reservation-form");
 
     const updateReservationSummary = () => {
@@ -164,6 +165,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (mesaIdInput) mesaIdInput.value = mesaId;
       if (selectedTableNumber) selectedTableNumber.textContent = mesaNumber;
       if (tipoInput) tipoInput.value = "";
+      if (reservationDateInput) reservationDateInput.value = document.getElementById("reservation-date")?.value || reservationDateInput.value;
       reservationModal.hidden = false;
       stepType.hidden = false;
       stepForm.hidden = true;
@@ -319,7 +321,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
-    document.querySelectorAll(".delete-item").forEach((button) => {
+    document.querySelectorAll(".admin-item .delete-item").forEach((button) => {
       button.addEventListener("click", async () => {
         const itemId = button.dataset.deleteId;
         const article = button.closest(".admin-item");
@@ -339,5 +341,32 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     });
   }
+
+  const adminReservaForm = document.getElementById("admin-reserva-form");
+  adminReservaForm?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    try {
+      const response = await fetch("/admin/reservas", { method: "POST", body: new FormData(adminReservaForm) });
+      const data = await response.json();
+      if (!response.ok || !data.success) throw new Error(data.message || "Não foi possível adicionar a reserva.");
+      window.location.reload();
+    } catch (error) {
+      alert(error.message || "Erro ao adicionar reserva.");
+    }
+  });
+
+  document.querySelectorAll(".cancel-reservation").forEach((button) => {
+    button.addEventListener("click", async () => {
+      if (!window.confirm("Cancelar este agendamento?")) return;
+      try {
+        const response = await fetch(`/admin/reservas/${button.dataset.reservaId}/cancelar`, { method: "POST" });
+        const data = await response.json();
+        if (!response.ok || !data.success) throw new Error(data.message || "Não foi possível cancelar a reserva.");
+        button.closest(".admin-reserva")?.remove();
+      } catch (error) {
+        alert(error.message || "Erro ao cancelar reserva.");
+      }
+    });
+  });
 });
 
