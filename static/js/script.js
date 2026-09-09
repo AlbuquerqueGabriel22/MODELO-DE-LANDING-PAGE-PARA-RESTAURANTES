@@ -232,27 +232,56 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const adminMesaButtons = [...document.querySelectorAll(".admin-mesa-btn")];
   if (adminMesaButtons.length) {
+    const adminTableDate = document.getElementById("admin-table-date");
+    const adminTableDetails = document.getElementById("admin-table-details");
+
+    const showTableDetails = (data) => {
+      if (!adminTableDetails) return;
+      if (!data.reservas.length) {
+        adminTableDetails.innerHTML = `<strong>Mesa ${data.mesa}</strong><p>Livre em ${data.data}.</p>`;
+      } else {
+        adminTableDetails.innerHTML = `<strong>Mesa ${data.mesa} · ${data.data}</strong>${data.reservas.map((reserva) => `
+          <div class="admin-table-reservation">
+            <b>${reserva.nome}</b>
+            <span>${reserva.horario} · ${reserva.pessoas} pessoa(s)</span>
+            <span>${reserva.telefone} · ${reserva.email}</span>
+          </div>`).join("")}`;
+      }
+      adminTableDetails.hidden = false;
+    };
+
+    const refreshAdminTableColors = async () => {
+      if (!adminTableDate?.value) return;
+      const response = await fetch(`/admin/mesas-disponiveis?data=${encodeURIComponent(adminTableDate.value)}`);
+      const data = await response.json();
+      if (!response.ok || !data.success) throw new Error(data.message || "Não foi possível atualizar as mesas.");
+      data.mesas.forEach((mesa) => {
+        const button = document.querySelector(`.admin-mesa-btn[data-mesa-id="${mesa.id}"]`);
+        button?.classList.toggle("is-available", mesa.disponivel);
+        button?.classList.toggle("is-occupied", !mesa.disponivel);
+      });
+    };
+
     adminMesaButtons.forEach((button) => {
       button.addEventListener("click", async () => {
-        const mesaId = button.dataset.mesaId;
-
         try {
-          const response = await fetch(`/admin/mesa/${mesaId}/toggle`, { method: "POST" });
+          const response = await fetch(`/admin/mesa/${button.dataset.mesaId}/reservas?data=${encodeURIComponent(adminTableDate.value)}`);
           const data = await response.json();
-
-          if (!response.ok || !data.success) {
-            throw new Error(data.message || "Não foi possível alterar a mesa.");
-          }
-
-          const { disponivel } = data.mesa;
-          button.classList.toggle("is-available", disponivel);
-          button.classList.toggle("is-occupied", !disponivel);
-          button.querySelector("strong").textContent = disponivel ? "Disponível" : "Reservada";
-          button.querySelector("span").textContent = `Mesa ${data.mesa.numero}`;
+          if (!response.ok || !data.success) throw new Error(data.message || "Não foi possível consultar a mesa.");
+          showTableDetails(data);
         } catch (error) {
-          alert(error.message || "Erro ao atualizar a mesa.");
+          alert(error.message || "Erro ao consultar a mesa.");
         }
       });
+    });
+
+    adminTableDate?.addEventListener("change", async () => {
+      try {
+        await refreshAdminTableColors();
+        if (adminTableDetails) adminTableDetails.hidden = true;
+      } catch (error) {
+        alert(error.message || "Erro ao atualizar as mesas.");
+      }
     });
   }
 
@@ -343,6 +372,43 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   const adminReservaForm = document.getElementById("admin-reserva-form");
+  const adminReservaDate = document.getElementById("admin-reserva-data");
+  const adminReservaMesa = document.getElementById("admin-reserva-mesa");
+
+  const updateAdminMesaOptions = async () => {
+    if (!adminReservaDate || !adminReservaMesa || !adminReservaDate.value) return;
+    const selectedMesa = adminReservaMesa.value;
+    try {
+      const response = await fetch(`/admin/mesas-disponiveis?data=${encodeURIComponent(adminReservaDate.value)}`);
+      const data = await response.json();
+      if (!response.ok || !data.success) throw new Error(data.message || "Não foi possível consultar as mesas.");
+
+      adminReservaMesa.replaceChildren();
+      data.mesas.filter((mesa) => mesa.disponivel).forEach((mesa) => {
+        const option = document.createElement("option");
+        option.value = String(mesa.id);
+        option.textContent = `Mesa ${mesa.numero}`;
+        adminReservaMesa.appendChild(option);
+      });
+
+      if (selectedMesa && [...adminReservaMesa.options].some((option) => option.value === selectedMesa)) {
+        adminReservaMesa.value = selectedMesa;
+      }
+      if (!adminReservaMesa.options.length) {
+        const option = document.createElement("option");
+        option.textContent = "Nenhuma mesa disponível nesta data";
+        option.disabled = true;
+        option.selected = true;
+        adminReservaMesa.appendChild(option);
+      }
+    } catch (error) {
+      alert(error.message || "Erro ao consultar mesas disponíveis.");
+    }
+  };
+
+  adminReservaDate?.addEventListener("change", updateAdminMesaOptions);
+  updateAdminMesaOptions();
+
   adminReservaForm?.addEventListener("submit", async (event) => {
     event.preventDefault();
     try {

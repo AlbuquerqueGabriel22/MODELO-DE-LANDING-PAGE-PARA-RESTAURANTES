@@ -50,9 +50,9 @@
                 <h2>Adicionar agendamento</h2>
                 <form id="admin-reserva-form" class="admin-form">
                     <label>Nome completo<input type="text" name="nome" required></label>
-                    <label>Data<input type="date" name="data_reserva" min="{{ hoje.isoformat() }}" required></label>
+                    <label>Data<input type="date" name="data_reserva" id="admin-reserva-data" value="{{ hoje.isoformat() }}" min="{{ hoje.isoformat() }}" required></label>
                     <label>Horário<input type="time" name="horario" required></label>
-                    <label>Mesa<select name="mesa_id" required>{% for mesa in mesas %}<option value="{{ mesa.id }}">Mesa {{ mesa.numero }}</option>{% endfor %}</select></label>
+                    <label>Mesa<select name="mesa_id" id="admin-reserva-mesa" required>{% for mesa in mesas %}<option value="{{ mesa.id }}">Mesa {{ mesa.numero }}</option>{% endfor %}</select></label>
                     <label>Pessoas<input type="number" name="quantas_pessoas" min="1" max="20" required></label>
                     <label>Telefone<input type="tel" name="telefone" required></label>
                     <label>E-mail<input type="email" name="email" required></label>
@@ -62,14 +62,15 @@
             </div>
             <div class="admin-panel">
                 <h2>Mesas</h2>
+                <label class="admin-table-date">Ver data<input type="date" id="admin-table-date" value="{{ hoje.isoformat() }}" min="{{ hoje.isoformat() }}"></label>
                 <div class="admin-mesas">
                     {% for mesa in mesas %}
-                    <button type="button" class="admin-mesa-btn {% if mesa.disponivel %}is-available{% else %}is-occupied{% endif %}" data-mesa-id="{{ mesa.id }}">
+                    <button type="button" class="admin-mesa-btn {% if mesa_status[mesa.id] %}is-occupied{% else %}is-available{% endif %}" data-mesa-id="{{ mesa.id }}" data-mesa-number="{{ mesa.numero }}" aria-label="Ver agendamento da mesa {{ mesa.numero }}">
                         <span>Mesa {{ mesa.numero }}</span>
-                        <strong>{{ 'Disponível' if mesa.disponivel else 'Reservada' }}</strong>
                     </button>
                     {% endfor %}
                 </div>
+                <div class="admin-table-details" id="admin-table-details" hidden></div>
             </div>
 
             <div class="admin-panel">

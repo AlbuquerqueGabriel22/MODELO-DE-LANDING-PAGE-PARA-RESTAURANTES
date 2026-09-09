@@ -191,7 +191,51 @@ def admin():
     mesas = Mesa.query.order_by(Mesa.numero).all()
     itens = ItemCardapio.query.order_by(ItemCardapio.ordem).all()
     reservas_ativas = Reserva.query.filter_by(status="ativa").order_by(Reserva.data_reserva, Reserva.horario).all()
-    return render_template('admin.html', mesas=mesas, itens=itens, reservas=reservas_ativas, hoje=date.today())
+    mesa_status = {mesa.id: not mesa_is_available(mesa.id, date.today()) for mesa in mesas}
+    return render_template('admin.html', mesas=mesas, itens=itens, reservas=reservas_ativas, hoje=date.today(), mesa_status=mesa_status)
+
+
+@backend.route('/admin/mesas-disponiveis', methods=['GET'])
+@admin_required
+def admin_mesas_disponiveis():
+    reservation_date = get_reservation_date()
+    mesas = Mesa.query.order_by(Mesa.numero).all()
+    return jsonify({
+        "success": True,
+        "mesas": [
+            {"id": mesa.id, "numero": mesa.numero, "disponivel": mesa_is_available(mesa.id, reservation_date)}
+            for mesa in mesas
+        ],
+    })
+
+
+@backend.route('/admin/mesa/<int:mesa_id>/reservas', methods=['GET'])
+@admin_required
+def admin_reservas_da_mesa(mesa_id):
+    mesa = db.session.get(Mesa, mesa_id)
+    if not mesa:
+        return jsonify({"success": False, "message": "Mesa não encontrada."}), 404
+
+    reservation_date = get_reservation_date()
+    reservas = Reserva.query.filter_by(
+        mesa_id=mesa.id, data_reserva=reservation_date, status="ativa"
+    ).order_by(Reserva.horario).all()
+    return jsonify({
+        "success": True,
+        "mesa": mesa.numero,
+        "data": reservation_date.strftime("%d/%m/%Y"),
+        "reservas": [
+            {
+                "id": reserva.id,
+                "nome": reserva.nome,
+                "horario": reserva.horario,
+                "telefone": reserva.telefone,
+                "email": reserva.email,
+                "pessoas": reserva.pessoas,
+            }
+            for reserva in reservas
+        ],
+    })
 
 
 @backend.route('/admin/mesa/<int:mesa_id>/toggle', methods=['POST'])
@@ -311,6 +355,8 @@ def admin_adicionar_reserva():
     mesa = db.session.get(Mesa, mesa_id)
     if not mesa or not all(required) or pessoas < 1:
         return jsonify({"success": False, "message": "Preencha todos os campos da reserva."}), 400
+    if data_reserva < date.today():
+        return jsonify({"success": False, "message": "Escolha uma data futura."}), 400
     if not mesa_is_available(mesa.id, data_reserva):
         return jsonify({"success": False, "message": "Essa mesa já está reservada para essa data."}), 400
 
