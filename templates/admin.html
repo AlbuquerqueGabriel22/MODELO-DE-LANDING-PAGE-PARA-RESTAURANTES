@@ -24,27 +24,6 @@
             <a class="admin-logout" href="{{ url_for('admin_logout') }}">Sair</a>
         </section>
 
-        <section class="admin-panel admin-reservas-panel">
-            <div class="admin-section-heading">
-                <div><p class="eyebrow">Informações privadas</p><h2>Agendamentos ativos</h2></div>
-                <span>{{ reservas|length }} reserva(s)</span>
-            </div>
-            <div class="admin-reservas-list">
-                {% for reserva in reservas %}
-                <article class="admin-reserva" data-reserva-id="{{ reserva.id }}">
-                    <div>
-                        <span class="item-category">Mesa {{ reserva.mesa.numero }} · {{ reserva.data_reserva.strftime('%d/%m/%Y') if reserva.data_reserva else 'Data antiga' }} às {{ reserva.horario }}</span>
-                        <h3>{{ reserva.nome }}</h3>
-                        <p>{{ reserva.telefone }} · {{ reserva.email }} · {{ reserva.pessoas }} pessoa(s)</p>
-                    </div>
-                    <button type="button" class="delete-item cancel-reservation" data-reserva-id="{{ reserva.id }}">Cancelar</button>
-                </article>
-                {% else %}
-                <p class="admin-empty">Nenhum agendamento ativo.</p>
-                {% endfor %}
-            </div>
-        </section>
-
         <section class="admin-grid">
             <div class="admin-panel">
                 <h2>Adicionar agendamento</h2>
