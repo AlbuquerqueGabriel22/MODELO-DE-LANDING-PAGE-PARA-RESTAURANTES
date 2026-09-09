@@ -237,19 +237,43 @@ document.addEventListener("DOMContentLoaded", () => {
     const adminTableModalClose = document.getElementById("admin-table-modal-close");
     const adminTableDetails = document.getElementById("admin-table-details");
 
+    const escapeTableText = (value) => String(value).replace(/[&<>'"]/g, (character) => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      "'": "&#39;",
+      '"': "&quot;",
+    }[character]));
+
     const showTableDetails = (data) => {
       if (!adminTableDetails) return;
       if (!data.reservas.length) {
-        adminTableDetails.innerHTML = `<strong>Mesa ${data.mesa}</strong><p>Livre em ${data.data}.</p>`;
+        adminTableDetails.innerHTML = `<strong>Mesa ${data.mesa}</strong><p>Sem agendamento ativo.</p>`;
       } else {
-        adminTableDetails.innerHTML = `<strong>Mesa ${data.mesa} · ${data.data}</strong>${data.reservas.map((reserva) => `
+        adminTableDetails.innerHTML = `<strong>Mesa ${data.mesa} · Agendamentos ativos</strong>${data.reservas.map((reserva) => `
           <div class="admin-table-reservation">
-            <b>${reserva.nome}</b>
-            <span>${reserva.horario} · ${reserva.pessoas} pessoa(s)</span>
-            <span>${reserva.telefone} · ${reserva.email}</span>
+            <b>${escapeTableText(reserva.nome)}</b>
+            <span>Data: ${escapeTableText(reserva.data)} · Horário: ${escapeTableText(reserva.horario)}</span>
+            <span>${escapeTableText(reserva.telefone)} · ${escapeTableText(reserva.email)}</span>
+            <button type="button" class="delete-item cancel-table-reservation" data-reserva-id="${reserva.id}">Desmarcar</button>
           </div>`).join("")}`;
       }
       if (adminTableModal) adminTableModal.hidden = false;
+
+      adminTableDetails.querySelectorAll(".cancel-table-reservation").forEach((cancelButton) => {
+        cancelButton.addEventListener("click", async () => {
+          if (!window.confirm("Desmarcar este agendamento?")) return;
+          const response = await fetch(`/admin/reservas/${cancelButton.dataset.reservaId}/cancelar`, { method: "POST" });
+          const result = await response.json();
+          if (!response.ok || !result.success) {
+            alert(result.message || "Não foi possível desmarcar o agendamento.");
+            return;
+          }
+          await refreshAdminTableColors();
+          const mesaResponse = await fetch(`/admin/mesa/${data.mesaId || ""}/reservas`);
+          if (mesaResponse.ok) showTableDetails(await mesaResponse.json());
+        });
+      });
     };
 
     const refreshAdminTableColors = async () => {
@@ -261,6 +285,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const button = document.querySelector(`.admin-mesa-btn[data-mesa-id="${mesa.id}"]`);
         button?.classList.toggle("is-available", !mesa.tem_agendamento);
         button?.classList.toggle("is-occupied", mesa.tem_agendamento);
+        const status = button?.querySelector(".table-status");
+        if (status) status.textContent = mesa.tem_agendamento ? "AGENDADO" : "";
       });
     };
 
@@ -270,6 +296,7 @@ document.addEventListener("DOMContentLoaded", () => {
           const response = await fetch(`/admin/mesa/${button.dataset.mesaId}/reservas?data=${encodeURIComponent(adminTableDate.value)}`);
           const data = await response.json();
           if (!response.ok || !data.success) throw new Error(data.message || "Não foi possível consultar a mesa.");
+          data.mesaId = button.dataset.mesaId;
           showTableDetails(data);
         } catch (error) {
           alert(error.message || "Erro ao consultar a mesa.");
@@ -285,6 +312,10 @@ document.addEventListener("DOMContentLoaded", () => {
         alert(error.message || "Erro ao atualizar as mesas.");
       }
     });
+
+    window.setInterval(() => {
+      refreshAdminTableColors().catch(() => {});
+    }, 5000);
 
     adminTableModalClose?.addEventListener("click", () => {
       if (adminTableModal) adminTableModal.hidden = true;

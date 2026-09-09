@@ -2234,6 +2234,12 @@ h2 em {
   background: #e7c4c4;
 }
 
+.admin-page .admin-mesa-btn .table-status {
+  color: #9b1c1c;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+}
+
 .admin-page .admin-form input,
 .admin-page .admin-form select,
 .admin-page .admin-form textarea {
@@ -2334,6 +2340,11 @@ h2 em {
 .admin-table-reservation span {
   color: #444444;
   font-size: 13px;
+}
+
+.admin-table-reservation .cancel-table-reservation {
+  justify-self: start;
+  margin-top: 5px;
 }
 
 @media (max-width: 700px) {
